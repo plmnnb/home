@@ -43,7 +43,7 @@ const siteLogo = import.meta.env.VITE_SITE_MAIN_LOGO;
 // 站点链接
 const siteUrl = computed(() => {
   const url = import.meta.env.VITE_SITE_URL;
-  if (!url) return "草帽是赖".split("");
+  if (!url) return "imsyy.top".split(".");
   if (url.startsWith("http://") || url.startsWith("https://")) {
     const urlFormat = url.replace(/^(https?:\/\/)/, "");
     return urlFormat.split(".");
@@ -89,8 +89,7 @@ watch(
 </script>
 
 <style lang="scss" scoped>
-// 引入全局正体字体
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500&display=swap');
 
 .message {
   .logo {
@@ -107,13 +106,12 @@ watch(
       width: 100%;
       padding-left: 22px;
       transform: translateY(-8px);
-      // 强制标准正体（思源黑体）
       font-family: 'Noto Sans SC', sans-serif;
-      // 固定宽度边界，超过自动缩小
-      max-width: 280px;
+      // 固定宽度阈值，超过此宽度开始缩小
+      max-width: 260px;
       display: flex;
       align-items: baseline;
-      flex-wrap: wrap; // 关键：中文自动换行，彻底解决裁切
+      flex-wrap: nowrap;
       gap: 6px;
 
       .regular {
@@ -122,15 +120,15 @@ watch(
       }
 
       .bg {
-        // 动态字体：宽度越小，字号越小
-        font-size: clamp(2rem, 4vw, 4.5rem);
-        white-space: normal; // 取消强制不换行
-        word-break: break-all; // 中文自动换行
+        // 核心：宽度阈值自适应，不换行，不截断
+        font-size: clamp(1.8rem, calc(260px * 0.17), 4.2rem);
+        white-space: nowrap;
+        overflow: visible;
       }
 
       .sm {
-        font-size: clamp(1rem, 1.8vw, 2rem);
-        white-space: normal;
+        font-size: clamp(0.9rem, calc(260px * 0.08), 1.8rem);
+        white-space: nowrap;
         @media (min-width: 721px) and (max-width: 789px) {
           display: none;
         }
