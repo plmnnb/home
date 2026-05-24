@@ -101,17 +101,21 @@ watch(
     }
     .name {
       width: 100%;
+      max-width: 250px;
       padding-left: 22px;
       transform: translateY(-8px);
-      font-family: "HarmonyOS_Regular", sans-serif;
+      white-space: nowrap;
+      overflow: visible;
 
       .bg {
-        font-size: 5rem;
+        font-size: clamp(2.5rem, 5vw, 5rem);
+        transition: font-size 0.2s;
       }
 
       .sm {
         margin-left: 6px;
-        font-size: 2rem;
+        font-size: clamp(1rem, 2vw, 2rem);
+        transition: font-size 0.2s;
         @media (min-width: 721px) and (max-width: 789px) {
           display: none;
         }
@@ -149,10 +153,6 @@ watch(
         line-height: 2rem;
         margin-right: auto;
         transition: opacity 0.2s;
-
-        p {
-          font-family: "Pacifico-Regular", cursive;
-        }
       }
 
       .xicon:nth-of-type(2) {
