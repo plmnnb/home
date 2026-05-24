@@ -103,6 +103,7 @@ watch(
       width: 100%;
       padding-left: 22px;
       transform: translateY(-8px);
+      font-family: "HarmonyOS_Regular", sans-serif;
 
       .bg {
         font-size: 5rem;
@@ -148,6 +149,10 @@ watch(
         line-height: 2rem;
         margin-right: auto;
         transition: opacity 0.2s;
+
+        p {
+          font-family: "Pacifico-Regular", cursive;
+        }
       }
 
       .xicon:nth-of-type(2) {
