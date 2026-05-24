@@ -3,16 +3,11 @@
   <div class="message">
     <!-- Logo -->
     <div class="logo">
-      <!-- 圆形头像容器 -->
-      <div class="avatar-container">
-        <img class="logo-img" :src="siteLogo" alt="logo" />
-      </div>
-      <!-- 自适应字体容器 -->
-      <div class="name-wrapper">
-        <div class="name-container" ref="nameContainerRef">
-          <span class="bg" ref="bgTextRef">{{ siteUrl.main }}</span>
-          <span v-if="siteUrl.suffix" class="sm">{{ siteUrl.suffix }}</span>
-        </div>
+      <img class="logo-img" :src="siteLogo" alt="logo" />
+      <div :class="{ name: true, 'text-hidden': true, long: siteUrl[0].length >= 6 }">
+        <span class="bg regular">{{ siteUrl[0] }}</span>
+        <!-- 删掉前面的 . -->
+        <span class="sm regular">{{ siteUrl[1] }}</span>
       </div>
     </div>
     <!-- 简介 -->
@@ -40,29 +35,21 @@ import { Icon } from "@vicons/utils";
 import { QuoteLeft, QuoteRight } from "@vicons/fa";
 import { Error } from "@icon-park/vue-next";
 import { mainStore } from "@/store";
-
+import { computed, reactive, watch, h } from "vue";
+import { ElMessage } from "element-plus";
 const store = mainStore();
 
 // 主页站点logo
 const siteLogo = import.meta.env.VITE_SITE_MAIN_LOGO;
-
-// 站点链接 - 修复中文域名问题
+// 站点链接
 const siteUrl = computed(() => {
   const url = import.meta.env.VITE_SITE_URL;
-  if (!url) return { main: "imsyy", suffix: "top" };
-  
-  let cleanUrl = url;
+  if (!url) return "imsyy.top".split(".");
   if (url.startsWith("http://") || url.startsWith("https://")) {
-    cleanUrl = url.replace(/^(https?:\/\/)/, "");
+    const urlFormat = url.replace(/^(https?:\/\/)/, "");
+    return urlFormat.split(".");
   }
-  
-  const parts = cleanUrl.split(".");
-  
-  if (parts.length === 1) {
-    return { main: parts[0], suffix: null };
-  }
-  
-  return { main: parts[0], suffix: parts.slice(1).join(".") };
+  return url.split(".");
 });
 
 // 简介区域文字
@@ -70,63 +57,6 @@ const descriptionText = reactive({
   hello: import.meta.env.VITE_DESC_HELLO,
   text: import.meta.env.VITE_DESC_TEXT,
 });
-
-// 自适应字体相关
-const nameContainerRef = ref(null);
-const bgTextRef = ref(null);
-const resizeObserver = ref(null);
-let adjustTimer = null;
-let lastFontSize = null;
-
-// 计算并调整字体大小 - 添加缓存防抖
-const adjustFontSize = () => {
-  if (!nameContainerRef.value || !bgTextRef.value) return;
-  
-  const container = nameContainerRef.value;
-  const textEl = bgTextRef.value;
-  
-  const suffixExists = siteUrl.value.suffix;
-  const containerMaxWidth = container.clientWidth - (suffixExists ? 60 : 20);
-  
-  let currentFontSize = 80;
-  textEl.style.fontSize = `${currentFontSize}px`;
-  
-  let textWidth = textEl.scrollWidth;
-  
-  while (textWidth > containerMaxWidth && currentFontSize > 20) {
-    currentFontSize -= 2;
-    textEl.style.fontSize = `${currentFontSize}px`;
-    textWidth = textEl.scrollWidth;
-  }
-  
-  if (textWidth > containerMaxWidth) {
-    currentFontSize = Math.max(20, (containerMaxWidth / textWidth) * currentFontSize);
-    textEl.style.fontSize = `${currentFontSize}px`;
-  }
-  
-  // 如果字体大小没变化，不触发重新计算
-  if (lastFontSize === currentFontSize) return;
-  lastFontSize = currentFontSize;
-};
-
-// 防抖版本的调整函数
-const debouncedAdjustFontSize = () => {
-  if (adjustTimer) clearTimeout(adjustTimer);
-  adjustTimer = setTimeout(() => {
-    adjustFontSize();
-  }, 100);
-};
-
-// 使用 ResizeObserver 监听容器大小变化
-const initResizeObserver = () => {
-  if (!nameContainerRef.value) return;
-  
-  resizeObserver.value = new ResizeObserver(() => {
-    debouncedAdjustFontSize();
-  });
-  
-  resizeObserver.value.observe(nameContainerRef.value);
-};
 
 // 切换右侧功能区
 const changeBox = () => {
@@ -155,45 +85,8 @@ watch(
       descriptionText.hello = import.meta.env.VITE_DESC_HELLO;
       descriptionText.text = import.meta.env.VITE_DESC_TEXT;
     }
-  }
+  },
 );
-
-// 监听站点 URL 变化
-watch(
-  () => siteUrl.value.main,
-  () => {
-    setTimeout(() => {
-      adjustFontSize();
-    }, 100);
-  }
-);
-
-// 监听窗口大小变化 - 使用防抖
-let resizeTimer = null;
-const handleResize = () => {
-  if (resizeTimer) clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => {
-    adjustFontSize();
-  }, 150);
-};
-
-onMounted(() => {
-  setTimeout(() => {
-    adjustFontSize();
-    initResizeObserver();
-  }, 100);
-  
-  window.addEventListener('resize', handleResize);
-});
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', handleResize);
-  if (resizeTimer) clearTimeout(resizeTimer);
-  if (adjustTimer) clearTimeout(adjustTimer);
-  if (resizeObserver.value) {
-    resizeObserver.value.disconnect();
-  }
-});
 </script>
 
 <style lang="scss" scoped>
@@ -204,69 +97,52 @@ onBeforeUnmount(() => {
     align-items: center;
     animation: fade 0.5s;
     max-width: 460px;
-    
-    .avatar-container {
-      width: 120px;
-      height: 120px;
-      flex-shrink: 0;
+    .logo-img {
       border-radius: 50%;
-      overflow: hidden;
-      background-color: rgba(0, 0, 0, 0.2);
-      
-      .logo-img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
+      width: 120px;
     }
-    
-    .name-wrapper {
-      flex: 1;
-      min-width: 0;
-      padding-left: 22px;
-    }
-    
-    .name-container {
+    .name {
       width: 100%;
+      padding-left: 22px;
+      transform: translateY(-8px);
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 280px;
       display: flex;
       align-items: baseline;
-      white-space: nowrap;
-      
-      .bg {
-        font-size: 5rem;
-        font-family: "HarmonyOS_Regular", sans-serif;
-        display: inline-block;
-        transition: font-size 0.1s ease;
-        white-space: nowrap;
-        max-width: calc(100% - 60px);
-        overflow: visible;
+      flex-wrap: nowrap;
+      gap: 6px;
+
+      .regular {
+        font-family: system-ui, -apple-system, sans-serif;
       }
-      
+
+      .bg {
+        font-size: clamp(2.5rem, 5vw, 5rem);
+        white-space: nowrap;
+      }
+
       .sm {
-        margin-left: 6px;
-        font-size: 2rem;
-        flex-shrink: 0;
-        
+        font-size: clamp(1rem, 2vw, 2rem);
+        white-space: nowrap;
         @media (min-width: 721px) and (max-width: 789px) {
           display: none;
         }
       }
     }
-    
     @media (max-width: 768px) {
-      .avatar-container {
+      .logo-img {
         width: 100px;
-        height: 100px;
       }
-      .name-container {
-        .bg {
-          font-size: 4.5rem;
-        }
+      .name {
+        height: 128px;
       }
     }
-    
+
     @media (max-width: 720px) {
       max-width: 100%;
+      .name {
+        max-width: unset;
+      }
     }
   }
 
@@ -287,7 +163,9 @@ onBeforeUnmount(() => {
         transition: opacity 0.2s;
 
         p {
-          font-family: "Pacifico-Regular", cursive;
+          &:nth-of-type(1) {
+            font-family: "Pacifico-Regular";
+          }
         }
       }
 
