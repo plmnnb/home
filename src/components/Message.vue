@@ -103,7 +103,6 @@ watch(
       width: 100%;
       padding-left: 22px;
       transform: translateY(-8px);
-      font-family: "Pacifico-Regular";
 
       .bg {
         font-size: 5rem;
@@ -149,12 +148,6 @@ watch(
         line-height: 2rem;
         margin-right: auto;
         transition: opacity 0.2s;
-
-        p {
-          &:nth-of-type(1) {
-            font-family: "Pacifico-Regular";
-          }
-        }
       }
 
       .xicon:nth-of-type(2) {
@@ -166,28 +159,5 @@ watch(
       pointer-events: none;
     }
   }
-  // @media (max-width: 390px) {
-  //   .logo {
-  //     flex-direction: column;
-  //     .logo-img {
-  //       display: none;
-  //     }
-  //     .name {
-  //       margin-left: 0;
-  //       height: auto;
-  //       transform: none;
-  //       text-align: center;
-  //       .bg {
-  //         font-size: 3.5rem;
-  //       }
-  //       .sm {
-  //         font-size: 1.4rem;
-  //       }
-  //     }
-  //   }
-  //   .description {
-  //     margin-top: 2.5rem;
-  //   }
-  // }
 }
 </style>
