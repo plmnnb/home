@@ -5,8 +5,7 @@
     <div class="logo">
       <img class="logo-img" :src="siteLogo" alt="logo" />
       <div :class="{ name: true, 'text-hidden': true, long: siteUrl[0].length >= 6 }">
-        <span class="bg regular">{{ siteUrl[0] }}</span>
-        <span class="sm regular">{{ siteUrl[1] }}</span>
+        <span class="text-auto regular">{{ siteUrl[0] }}{{ siteUrl[1] }}</span>
       </div>
     </div>
     <!-- 简介 -->
@@ -106,31 +105,27 @@ watch(
       width: 100%;
       padding-left: 22px;
       transform: translateY(-8px);
-      font-family: 'Noto Sans SC', sans-serif;
-      // 固定宽度阈值，超过此宽度开始缩小
+      // 固定阈值宽度，作为缩放边界
       max-width: 260px;
+      height: 100%;
       display: flex;
       align-items: baseline;
-      flex-wrap: nowrap;
-      gap: 6px;
 
-      .regular {
+      // 核心单行缩放样式
+      .text-auto {
         font-family: 'Noto Sans SC', sans-serif;
         font-weight: 500;
+        white-space: nowrap;
+        // 关键：自动适配容器宽度，不裁切、不换行
+        font-size: clamp(1rem, calc(260px / (length($text) * 0.45)), 4.2rem);
+        // 兼容所有浏览器的文本缩放方案
+        container-type: inline-size;
+        container-name: textScale;
       }
 
-      .bg {
-        // 核心：宽度阈值自适应，不换行，不截断
-        font-size: clamp(1.8rem, calc(260px * 0.17), 4.2rem);
-        white-space: nowrap;
-        overflow: visible;
-      }
-
-      .sm {
-        font-size: clamp(0.9rem, calc(260px * 0.08), 1.8rem);
-        white-space: nowrap;
-        @media (min-width: 721px) and (max-width: 789px) {
-          display: none;
+      @container textScale (max-width: 260px) {
+        .text-auto {
+          font-size: 1rem;
         }
       }
     }
