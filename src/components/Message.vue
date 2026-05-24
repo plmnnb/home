@@ -6,7 +6,6 @@
       <img class="logo-img" :src="siteLogo" alt="logo" />
       <div :class="{ name: true, 'text-hidden': true, long: siteUrl[0].length >= 6 }">
         <span class="bg regular">{{ siteUrl[0] }}</span>
-        <!-- 删掉前面的 . -->
         <span class="sm regular">{{ siteUrl[1] }}</span>
       </div>
     </div>
@@ -44,7 +43,7 @@ const siteLogo = import.meta.env.VITE_SITE_MAIN_LOGO;
 // 站点链接
 const siteUrl = computed(() => {
   const url = import.meta.env.VITE_SITE_URL;
-  if (!url) return "imsyy.top".split(".");
+  if (!url) return "草帽是赖".split("");
   if (url.startsWith("http://") || url.startsWith("https://")) {
     const urlFormat = url.replace(/^(https?:\/\/)/, "");
     return urlFormat.split(".");
@@ -90,6 +89,9 @@ watch(
 </script>
 
 <style lang="scss" scoped>
+// 引入全局正体字体
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+
 .message {
   .logo {
     display: flex;
@@ -105,25 +107,30 @@ watch(
       width: 100%;
       padding-left: 22px;
       transform: translateY(-8px);
-      font-family: system-ui, -apple-system, sans-serif;
+      // 强制标准正体（思源黑体）
+      font-family: 'Noto Sans SC', sans-serif;
+      // 固定宽度边界，超过自动缩小
       max-width: 280px;
       display: flex;
       align-items: baseline;
-      flex-wrap: nowrap;
+      flex-wrap: wrap; // 关键：中文自动换行，彻底解决裁切
       gap: 6px;
 
       .regular {
-        font-family: system-ui, -apple-system, sans-serif;
+        font-family: 'Noto Sans SC', sans-serif;
+        font-weight: 500;
       }
 
       .bg {
-        font-size: clamp(2.5rem, 5vw, 5rem);
-        white-space: nowrap;
+        // 动态字体：宽度越小，字号越小
+        font-size: clamp(2rem, 4vw, 4.5rem);
+        white-space: normal; // 取消强制不换行
+        word-break: break-all; // 中文自动换行
       }
 
       .sm {
-        font-size: clamp(1rem, 2vw, 2rem);
-        white-space: nowrap;
+        font-size: clamp(1rem, 1.8vw, 2rem);
+        white-space: normal;
         @media (min-width: 721px) and (max-width: 789px) {
           display: none;
         }
@@ -134,7 +141,7 @@ watch(
         width: 100px;
       }
       .name {
-        height: 128px;
+        height: auto;
       }
     }
 
